@@ -1,0 +1,44 @@
+
+
+.NavContainer {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media (min-width: 640px) {
+  .NavContainer {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .NavContainer {
+    padding: 0 2rem;
+  }
+}
+
+.NavTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.NavLinks {
+  display: flex;
+  gap: 1rem;
+}
+
+.NavLink {
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.2s ease;
+}
+
+.NavLink:hover {
+  color: #e5e7eb; /* Light gray for hover, matching Tailwind gray-200 */
+}
