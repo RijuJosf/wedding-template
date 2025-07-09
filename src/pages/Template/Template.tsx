@@ -4,20 +4,21 @@ import { useLocation, useNavigate } from "react-router-dom";
 import defaultImage from "../../assets/default-image.png";
 import { supabase } from "../../supabase-client";
 
+const userId = import.meta.env.VITE_USER_ID;
+
 const Template = () => {
   const location = useLocation();
   const { Editable } = location.state || { Editable: false };
+  const { selectedUser } = location.state || { selectedUser: userId };
   const [showAddShedule, setShowAddShedule] = useState(false);
   const [galleryData, setGalleryData] = useState<any[]>([]);
   const [guestWishes, setGuestWishes] = useState<any[]>([]);
-  const [eventScheduleList, setEventScheduleList] = useState<
-    { id: number; "event-title": string; "event-description": string }[]
-  >([]);
+  const [eventScheduleList, setEventScheduleList] = useState<any[]>([]);
   const [templateData, setTemplateData] = useState<{
     hero?: string | null;
     gallery1?: string | null;
     gallery2?: string | null;
-    heroTitle?: string | null;
+    homeTitle?: string | null;
     heroSubtitle?: string | null;
     celebrationTitle?: string | null;
     celebrationContent?: string | null;
@@ -40,7 +41,7 @@ const Template = () => {
     hero: null,
     gallery1: null,
     gallery2: null,
-    heroTitle: "",
+    homeTitle: "",
     heroSubtitle: "",
     celebrationTitle: "",
     celebrationContent: "",
@@ -81,13 +82,11 @@ const Template = () => {
     const { data, error } = await supabase
       .from("gallery")
       .select("*")
-      .eq("user-id", "user-123");
+      .eq("user-id", selectedUser);
     if (error) {
       console.error("Error fetching gallery images:", error);
       return;
     } else {
-      console.log("Gallery Images:", data);
-      // const newData: typeof templateData = {};
       setGalleryData(data || []);
     }
   };
@@ -118,7 +117,7 @@ const Template = () => {
       .insert([
         {
           path: imageUrl,
-          "user-id": "user-123",
+          "user-id": selectedUser,
           type: "image",
         },
       ]);
@@ -143,13 +142,13 @@ const Template = () => {
       [position]: imageUrl,
     }));
 
-    // Step 1: Check if entry already exists
     const { data: existingData, error: fetchError } = await supabase
       .from("template-data")
       .select("id")
       .eq("pid", pid)
       .eq("position", position)
       .eq("type", "image")
+      .eq("user-id", selectedUser)
       .maybeSingle();
 
     if (fetchError) {
@@ -158,12 +157,11 @@ const Template = () => {
     }
 
     if (existingData) {
-      // Step 2: If exists, update the row
       const { error: updateError, data: updateData } = await supabase
         .from("template-data")
         .update({
           content: imageUrl,
-          "user-id": "user-123",
+          "user-id": selectedUser,
         })
         .eq("id", existingData.id);
 
@@ -173,14 +171,13 @@ const Template = () => {
         console.log("Image URL updated in database:", updateData);
       }
     } else {
-      // Step 3: If not exists, insert new row
       const { error: insertError, data: insertData } = await supabase
         .from("template-data")
         .insert([
           {
             pid,
             content: imageUrl,
-            "user-id": "user-123",
+            "user-id": selectedUser,
             position,
             type: "image",
           },
@@ -195,13 +192,13 @@ const Template = () => {
   };
 
   const saveText = async (pid: number, position: string, text: string) => {
-    // Check if the entry already exists
     const { data: existingData, error: fetchError } = await supabase
       .from("template-data")
       .select("id")
       .eq("pid", pid)
       .eq("position", position)
       .eq("type", "text")
+      .eq("user-id", selectedUser)
       .maybeSingle();
 
     if (fetchError) {
@@ -210,12 +207,11 @@ const Template = () => {
     }
 
     if (existingData) {
-      // Entry exists — do update
       const { error: updateError, data: updateData } = await supabase
         .from("template-data")
         .update({
           content: text,
-          "user-id": "user-123",
+          "user-id": selectedUser,
         })
         .eq("id", existingData.id);
 
@@ -229,14 +225,13 @@ const Template = () => {
         }));
       }
     } else {
-      // No existing entry — do insert
       const { error: insertError, data: insertData } = await supabase
         .from("template-data")
         .insert([
           {
             pid,
             content: text,
-            "user-id": "user-123",
+            "user-id": selectedUser,
             position,
             type: "text",
           },
@@ -272,11 +267,10 @@ const Template = () => {
     const { data, error } = await supabase
       .from("wishes")
       .select("*")
-      .eq("user-id", "user-123");
+      .eq("user-id", selectedUser);
     if (error) {
       console.error("Error fetching guest wishes:", error);
     } else {
-      console.log("Guest Wishes:", data);
       setGuestWishes(data);
     }
   };
@@ -287,7 +281,7 @@ const Template = () => {
       .insert([
         {
           data: wish,
-          "user-id": "user-123",
+          "user-id": selectedUser,
           "guest-name": name,
         },
       ]);
@@ -311,7 +305,7 @@ const Template = () => {
     const { data, error } = await supabase
       .from("template-data")
       .select("*")
-      .eq("user-id", "user-123");
+      .eq("user-id", selectedUser);
     if (error) {
       console.error("Error fetching template data:", error);
     } else if (data && data.length > 0) {
@@ -334,7 +328,7 @@ const Template = () => {
       .from("event-shedule")
       .insert([
         {
-          "user-id": "user-123",
+          "user-id": selectedUser,
           "event-title": _sheduleTitle,
           "event-description": _sheduleContent,
         },
@@ -345,7 +339,6 @@ const Template = () => {
           alert("Failed to add event schedule item.");
         } else {
           alert("Event schedule item added successfully!");
-          // Optionally, refresh the event schedule list here
           getEventScheduleData();
           _sheduleTitle = "";
           _sheduleContent = "";
@@ -357,12 +350,10 @@ const Template = () => {
     const { data, error } = await supabase
       .from("event-shedule")
       .select("*")
-      .eq("user-id", "user-123");
+      .eq("user-id", selectedUser);
     if (error) {
       console.error("Error fetching event schedule data:", error);
     } else if (data && data.length > 0) {
-      // console.log("Event Schedule Data:", data);
-      // Process the event schedule data as needed
       setEventScheduleList(data);
     }
   };
@@ -463,7 +454,7 @@ const Template = () => {
         </div>
       </div>
 
-      {/* Hero Section */}
+      {/* Home Section */}
       <div
         id="home"
         style={{
@@ -498,13 +489,13 @@ const Template = () => {
                 animation: "fadeIn 2s ease-in",
               }}
             >
-              {templateData.heroTitle || "Hero Title"}
+              {templateData.homeTitle || "Home Title"}
               {Editable && (
                 <FaEdit
                   size={18}
                   color="#000"
                   onClick={() =>
-                    editText(4, "heroTitle", templateData.heroTitle ?? null)
+                    editText(4, "homeTitle", templateData.homeTitle ?? null)
                   }
                 />
               )}
@@ -564,7 +555,7 @@ const Template = () => {
                   editText(
                     6,
                     "celebrationTitle",
-                    templateData.heroTitle ?? null
+                    templateData.homeTitle ?? null
                   )
                 }
               />
@@ -595,35 +586,6 @@ const Template = () => {
               />
             )}
           </p>
-        </div>
-        {/* divider */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            marginBottom: "48px",
-          }}
-        >
-          <div
-            style={{
-              height: "1px",
-              width: "100px",
-              backgroundColor: "#f43f5e",
-            }}
-          ></div>
-          <span
-            style={{ margin: "0 16px", color: "#f43f5e", fontSize: "24px" }}
-          >
-            ✿
-          </span>
-          <div
-            style={{
-              height: "1px",
-              width: "100px",
-              backgroundColor: "#f43f5e",
-            }}
-          ></div>
         </div>
 
         {/* Event Details */}
@@ -950,9 +912,7 @@ const Template = () => {
                   overflowWrap: "break-word",
                 }}
               >
-                {(
-                  templateData.ourStoryDescription || "Our story Description"
-                ).substring(0, 100)}
+                {templateData.ourStoryDescription || "Our story Description"}
                 {Editable && (
                   <FaEdit
                     size={18}
@@ -1142,9 +1102,6 @@ const Template = () => {
         </div>
 
         {/* Gallery */}
-     
-
-        {/* Gallery */}
 
         <h2
           style={{
@@ -1167,36 +1124,20 @@ const Template = () => {
             marginBottom: "48px",
           }}
         >
-          <img
-            src={
-              galleryData[0]?.path
-                ? galleryData[0]?.path ?? undefined
-                : defaultImage
-            }
-            alt="Wedding Ceremony"
-            style={{
-              width: "100%",
-              height: "256px",
-              objectFit: "cover",
-              borderRadius: "8px",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-            }}
-          />
-          <img
-            src={
-              galleryData[1]?.path
-                ? galleryData[1]?.path ?? undefined
-                : defaultImage
-            }
-            alt="Wedding Reception"
-            style={{
-              width: "100%",
-              height: "256px",
-              objectFit: "cover",
-              borderRadius: "8px",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-            }}
-          />
+          {galleryData.slice(0, 2).map((image: any, idx: number) => (
+            <img
+              key={idx}
+              src={image?.path ? image?.path ?? undefined : defaultImage}
+              alt="Wedding Ceremony"
+              style={{
+                width: "100%",
+                height: "256px",
+                objectFit: "cover",
+                borderRadius: "8px",
+                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+              }}
+            />
+          ))}
         </div>
 
         <div
@@ -1206,29 +1147,6 @@ const Template = () => {
             marginBottom: "48px",
           }}
         >
-          <button
-            style={{
-              backgroundColor: "#be123c",
-              color: "#fff",
-              fontSize: "16px",
-              fontWeight: "500",
-              padding: "10px 28px",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
-              transition: "background-color 0.3s ease",
-              marginRight: "16px",
-            }}
-            onClick={() => {
-              navigate("/gallery", { state: { galleryData: galleryData } });
-            }}
-          >
-            View More
-          </button>
-
-
-
           {Editable && (
             <button
               style={{
@@ -1251,6 +1169,26 @@ const Template = () => {
             </button>
           )}
 
+          <button
+            style={{
+              backgroundColor: "#be123c",
+              color: "#fff",
+              fontSize: "16px",
+              fontWeight: "500",
+              padding: "10px 28px",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
+              transition: "background-color 0.3s ease",
+              marginLeft: "16px",
+            }}
+            onClick={() => {
+              navigate("/gallery", { state: { galleryData: galleryData } });
+            }}
+          >
+            View All
+          </button>
         </div>
 
         {/* Guest Wishes */}
@@ -1581,10 +1519,12 @@ const Template = () => {
                       marginLeft: "8px",
                     }}
                   >
-                  View Website
+                    View Website
                   </a>
                 ) : (
-                  <span style={{ color: "#888", marginLeft: "8px" }}>No link provided</span>
+                  <span style={{ color: "#888", marginLeft: "8px" }}>
+                    No link provided
+                  </span>
                 )}
                 {Editable && (
                   <FaEdit
@@ -1617,16 +1557,6 @@ const Template = () => {
       >
         <p style={{ fontSize: "14px" }}>Emma & Liam | With Love, 2025</p>
       </div>
-
-      {/* Inline CSS for Animation */}
-      <style>
-        {`
-          @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-          }
-        `}
-      </style>
     </div>
   );
 };

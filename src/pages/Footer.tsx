@@ -1,10 +1,9 @@
+const Footer = () => {
+  return (
+    <footer style={{ textAlign: "center", marginTop: "32px", color: "#888" }}>
+      &copy; {new Date().getFullYear()}
+    </footer>
+  );
+};
 
-
-
-const Footer = () =>{
-    return(
-        <p>footer</p>
-    )
-}
-
-export default Footer
+export default Footer;

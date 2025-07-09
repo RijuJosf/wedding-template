@@ -1,13 +1,9 @@
-import React, { use, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 function Gallery() {
   const location = useLocation();
   const { galleryData } = location.state || { galleryData: [] };
 
-  useEffect(() => {
-    console.log("Gallery Data:", galleryData);
-  });
   return (
     <div
       style={{
@@ -21,7 +17,6 @@ function Gallery() {
         background: "#fafafa",
       }}
     >
-      <h2 style={{ textAlign: "center", margin: "24px 0" }}>Our Gallery</h2>
       <h2
         style={{
           fontSize: "24px",
@@ -57,11 +52,6 @@ function Gallery() {
                 alt={`Gallery Image ${idx + 1}`}
                 style={{ width: "100%", height: "auto", borderRadius: "4px" }}
               />
-              {item.title && (
-                <p style={{ marginTop: "8px", textAlign: "center" }}>
-                  {"uiuiuiui"}
-                </p>
-              )}
             </div>
           ))
         ) : (
