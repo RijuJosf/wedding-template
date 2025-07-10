@@ -100,6 +100,12 @@ const Login = () => {
     const handleAddUser = async () => {
       setError("");
       setIsLoading(true);
+      if (!/^[^@]+@[^@]+\.[^@]+$/.test(userEmail)) {
+        setError("Please enter a valid email");
+        setIsLoading(false);
+        return;
+      }
+
       if (!userEmail) {
         setError("Please enter a user email");
         setIsLoading(false);
@@ -117,6 +123,10 @@ const Login = () => {
 
       if (error) {
         console.error(error);
+        if (error?.code === "23505") {
+          setError("Email already exists. Please use another");
+          return;
+        }
         setError("Failed to add user");
       } else {
         onUserAdded();
@@ -216,7 +226,7 @@ const Login = () => {
           <AddUserForm onUserAdded={() => getUsers()} />
         </div>
       )}
-      <Footer />
+     
     </div>
   );
 };

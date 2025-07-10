@@ -82,7 +82,8 @@ const Template = () => {
     const { data, error } = await supabase
       .from("gallery")
       .select("*")
-      .eq("user-id", selectedUser);
+      .eq("user-id", selectedUser)
+      .limit(2);
     if (error) {
       console.error("Error fetching gallery images:", error);
       return;
@@ -267,7 +268,8 @@ const Template = () => {
     const { data, error } = await supabase
       .from("wishes")
       .select("*")
-      .eq("user-id", selectedUser);
+      .eq("user-id", selectedUser)
+      .limit(3);
     if (error) {
       console.error("Error fetching guest wishes:", error);
     } else {
@@ -338,7 +340,6 @@ const Template = () => {
           console.error("Error adding event schedule item:", error);
           alert("Failed to add event schedule item.");
         } else {
-          alert("Event schedule item added successfully!");
           getEventScheduleData();
           _sheduleTitle = "";
           _sheduleContent = "";
@@ -359,6 +360,14 @@ const Template = () => {
   };
 
   useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    const storedIsLoggedIn = localStorage.getItem("isLoggedIn");
+
+    if (!storedUser || !storedIsLoggedIn) {
+      navigate("/login");
+      return;
+    }
+
     getTemplateData();
     getEventScheduleData();
     getGalleryImages();
@@ -600,6 +609,7 @@ const Template = () => {
               borderRadius: "8px",
               padding: "32px",
               marginBottom: "48px",
+              width: "40%",
             }}
           >
             <h2
@@ -700,6 +710,7 @@ const Template = () => {
               borderRadius: "8px",
               padding: "32px",
               marginBottom: "48px",
+              width: "40%",
             }}
           >
             <h2
@@ -1184,7 +1195,7 @@ const Template = () => {
               marginLeft: "16px",
             }}
             onClick={() => {
-              navigate("/gallery", { state: { galleryData: galleryData } });
+              navigate("/gallery", { state: { selectedUser: selectedUser } });
             }}
           >
             View All
@@ -1285,7 +1296,9 @@ const Template = () => {
               transition: "background-color 0.3s ease",
             }}
             onClick={() => {
-              navigate("/guestWishes", { state: { guestWishes: guestWishes } });
+              navigate("/guestWishes", {
+                state: { selectedUser: selectedUser },
+              });
             }}
           >
             View All
@@ -1300,6 +1313,7 @@ const Template = () => {
             backgroundColor: "#fff1f2",
             borderRadius: "8px",
             padding: "32px",
+            marginBottom: "48px",
           }}
         >
           <h2
@@ -1547,16 +1561,16 @@ const Template = () => {
       </div>
 
       {/* Footer */}
-      <div
+      <footer
         style={{
-          backgroundColor: "#9f1239",
-          color: "#ffffff",
           textAlign: "center",
-          padding: "24px 0",
+          marginTop: "32px",
+          color: "#888",
+          marginBottom: "32px",
         }}
       >
-        <p style={{ fontSize: "14px" }}>Emma & Liam | With Love, 2025</p>
-      </div>
+        &copy; {new Date().getFullYear()} Matson Wedding Templates
+      </footer>
     </div>
   );
 };

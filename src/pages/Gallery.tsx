@@ -1,8 +1,28 @@
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { supabase } from "../supabase-client";
 
 function Gallery() {
   const location = useLocation();
-  const { galleryData } = location.state || { galleryData: [] };
+  const { selectedUser } = location.state || { selectedUser: "" };
+  const [galleryData, setGalleryData] = useState<any[]>([]);
+
+  const getGalleryImages = async () => {
+    const { data, error } = await supabase
+      .from("gallery")
+      .select("*")
+      .eq("user-id", selectedUser);
+    if (error) {
+      console.error("Error fetching gallery images:", error);
+      return;
+    } else {
+      setGalleryData(data || []);
+    }
+  };
+
+  useEffect(() => {
+    getGalleryImages();
+  }, []);
 
   return (
     <div
@@ -58,8 +78,15 @@ function Gallery() {
           <p>No images to display.</p>
         )}
       </div>
-      <footer style={{ textAlign: "center", marginTop: "32px", color: "#888" }}>
-        &copy; {new Date().getFullYear()}
+      <footer
+        style={{
+          textAlign: "center",
+          marginTop: "32px",
+          color: "#888",
+          marginBottom: "32px",
+        }}
+      >
+        &copy; {new Date().getFullYear()} Matson Wedding Templates
       </footer>
     </div>
   );
