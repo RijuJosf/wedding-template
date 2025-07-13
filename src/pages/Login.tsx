@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../supabase-client";
 import { useNavigate } from "react-router-dom";
-import "./Login.css";
-import Header from "./Header";
-import Footer from "./Footer";
 import { v4 as uuidv4 } from "uuid";
+import { supabase } from "../supabase-client";
+import Header from "./Header";
+import "./Login.css";
 
 const Login = () => {
   const [email, setEmail] = useState<string>("");

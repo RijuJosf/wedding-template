@@ -363,10 +363,10 @@ const Template = () => {
     const storedUser = localStorage.getItem("user");
     const storedIsLoggedIn = localStorage.getItem("isLoggedIn");
 
-    if (!storedUser || !storedIsLoggedIn) {
-      navigate("/login");
-      return;
-    }
+    // if (!storedUser || !storedIsLoggedIn) {
+    //   navigate("/login");
+    //   return;
+    // }
 
     getTemplateData();
     getEventScheduleData();
